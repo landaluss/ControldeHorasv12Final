@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="chema.curso.controldehorasv12final.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_registros"
+        android:name="chema.curso.controldehorasv12final.ui.consultas.ConsultasFragment"
+        android:label="@string/menu_registros"
+        tools:layout="@layout/fragment_consultas" />
+
+    <fragment
+        android:id="@+id/nav_informe"
+        android:name="chema.curso.controldehorasv12final.ui.registros.RegistrosFragment"
+        android:label="@string/menu_consultas"
+        tools:layout="@layout/fragment_registros" />
+
+    <fragment
+        android:id="@+id/nav_cuenta"
+        android:name="chema.curso.controldehorasv12final.ui.cuenta.CuentaFragment"
+        android:label="@string/menu_cuenta"
+        tools:layout="@layout/fragment_cuenta" />
+
+    <fragment
+        android:id="@+id/nav_ayuda"
+        android:name="chema.curso.controldehorasv12final.ui.ayuda.ayudaFragment"
+        android:label="@string/menu_ayuda"
+        tools:layout="@layout/fragment_ayuda" />
+
+    <fragment
+        android:id="@+id/nav_sesion"
+        android:name="chema.curso.controldehorasv12final.ui.sesion.SesionFragment"
+        android:label="@string/menu_sesion"
+        tools:layout="@layout/fragment_sesion" />
+
+
+</navigation>

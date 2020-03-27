@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">ControldeHorasv12Final</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Jose Manuel Charavía Gómez</string>
+    <string name="nav_header_subtitle">chemach@hotmail.es</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Registrar E/S</string>
+    <string name="menu_registros">Consultar Registros (Diarios)</string>
+    <string name="menu_consultas">Informes</string>
+    <string name="menu_cuenta">Mi Cuenta</string>
+    <string name="menu_ayuda">Ayuda</string>
+    <string name="menu_permisos">Permisos</string>
+    <string name="menu_sesion">Cerrar Sesión</string>
+
+    <string name="home_second">Home Second</string>
+    <string name="title_activity_maps">Map</string>
+</resources>
