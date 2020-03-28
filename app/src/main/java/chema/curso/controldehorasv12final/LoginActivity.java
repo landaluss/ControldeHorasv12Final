@@ -68,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
 
         mContext = this.getApplicationContext();
         volley = SinglentonVolley.getInstance(this);
@@ -78,9 +78,10 @@ public class LoginActivity extends AppCompatActivity {
 
         final EditText name = (EditText) findViewById(R.id.nombre);
         final EditText pass = (EditText) findViewById(R.id.pass);
-        Button btnLogin = (Button) findViewById(R.id.btnLogin);
+        btnLogin = (Button) findViewById(R.id.btnLogin);
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
 
@@ -121,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
 
                             if (Boolean.valueOf(response.getString("Autenticacion"))){
                                 Toast.makeText(mContext, "Hola" + " " +response.getString("nombre") + " " + response.getString("apellidos"), Toast.LENGTH_LONG).show();
-                                Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
+                                Intent intent = new Intent(LoginActivity.this, PrincipalActivity.class);
                                 //intent.putExtra("usuario",usuario);
                                 startActivity(intent);
                             }
