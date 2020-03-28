@@ -105,7 +105,6 @@ public class LoginActivity extends AppCompatActivity {
                 //Toast.makeText(MainActivity.this, "Nombre: " + correo + " / Pass: " + password, Toast.LENGTH_LONG).show();
                 Toast.makeText(LoginActivity.this, "Autentificando...", Toast.LENGTH_LONG).show();
 
-
             }
         });
     }
@@ -122,6 +121,7 @@ public class LoginActivity extends AppCompatActivity {
 
                             if (Boolean.valueOf(response.getString("Autenticacion"))){
                                 Toast.makeText(mContext, "Hola" + " " +response.getString("nombre") + " " + response.getString("apellidos"), Toast.LENGTH_LONG).show();
+                                //String correo = response.getString("correo");
                                 Intent intent = new Intent(LoginActivity.this, PrincipalActivity.class);
                                 //intent.putExtra("usuario",usuario);
                                 startActivity(intent);
