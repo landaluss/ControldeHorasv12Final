@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -35,7 +36,9 @@ import chema.curso.controldehorasv12final.LoginActivity;
 import chema.curso.controldehorasv12final.PrincipalActivity;
 import chema.curso.controldehorasv12final.R;
 
-public class HomeFragment extends Fragment implements OnMapReadyCallback {
+import static android.content.Context.LOCATION_SERVICE;
+
+public class HomeFragment extends Fragment implements OnMapReadyCallback , LocationListener {
 
     private View rootView;
     private GoogleMap mMap;
@@ -53,7 +56,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
         return rootView;
-
 
     }
 
@@ -91,6 +93,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
+        askforCheckGps();
+
     }
 
     @Override
@@ -103,23 +107,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         } else {
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
-            locManager = (LocationManager) getActivity().getSystemService(getContext().LOCATION_SERVICE);
-            Location loc = locManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-            latitude = loc.getLatitude();
-            longitud = loc.getLongitude();
-
-            LatLng currentPosition = new LatLng(latitude , longitud);
-            CameraPosition camera = new CameraPosition.Builder()
-                    .target(currentPosition)
-                    .zoom(18)
-                    .bearing(90)
-                    .tilt(45)
-                    .build();
-
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));
-
-            Toast.makeText(getContext(), "Latitud:" + loc.getLatitude() + " / Longitud: " + loc.getLongitude(), Toast.LENGTH_SHORT).show();
+            locManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+            locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER , 1000 , 10 , this);
+            locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER , 1000 , 10 , this);
         }
 
     }
@@ -150,6 +140,39 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 })
                 .setNegativeButton("Ahora no" , null)
                 .show();
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        latitude = location.getLatitude();
+        longitud = location.getLongitude();
+
+        LatLng currentPosition = new LatLng(latitude , longitud);
+        CameraPosition camera = new CameraPosition.Builder()
+                .target(currentPosition)
+                .zoom(18)
+                .bearing(90)
+                .tilt(45)
+                .build();
+
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));
+
+        //Toast.makeText(getContext(), "Latitud" + latitude, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
 
     }
 }
