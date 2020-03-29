@@ -154,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                 if(switchRemenber.isChecked()){
                                     SharedPreferences.Editor editor = prefs.edit();
-                                    editor.putString("email" , mail);
+                                    editor.putString("email" , correo);
                                     editor.putString("pass" , password);
                                     editor.putString("username" , username);
                                     editor.putString("name" , nombre);
@@ -164,7 +164,7 @@ public class LoginActivity extends AppCompatActivity {
                                     editor.apply();
                                 } else {
                                     SharedPreferences.Editor editor = prefs.edit();
-                                    editor.putString("email" , mail);
+                                    editor.putString("email" , correo);
                                     editor.putString("name" , nombre);
                                     editor.putString("apellidos" , apellidos);
                                     editor.putString("remenber" , "nochecked");
