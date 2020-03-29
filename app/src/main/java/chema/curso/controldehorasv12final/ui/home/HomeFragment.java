@@ -63,6 +63,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
+
         mapView = (MapView) rootView.findViewById(R.id.map);
         if(mapView!= null){
             mapView.onCreate(null);

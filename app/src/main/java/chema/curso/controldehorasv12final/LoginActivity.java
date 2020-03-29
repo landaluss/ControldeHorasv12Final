@@ -84,7 +84,7 @@ public class LoginActivity extends AppCompatActivity {
         switchRemenber = (Switch) findViewById(R.id.switchRemenber);
         btnLogin = (Button) findViewById(R.id.btnLogin);
 
-        prefs = getSharedPreferences("Prefences" , Context.MODE_PRIVATE);
+        prefs = getSharedPreferences("Preferences" , Context.MODE_PRIVATE);
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
@@ -129,7 +129,7 @@ public class LoginActivity extends AppCompatActivity {
                             if (Boolean.valueOf(response.getString("Autenticacion"))){
                                 Toast.makeText(mContext, "Hola" + " " +response.getString("nombre") + " " + response.getString("apellidos"), Toast.LENGTH_LONG).show();
 
-                                String nombre = name.getText().toString();
+                                String nombre = response.getString("nombre");
                                 String apellidos = response.getString("apellidos");
                                 String password = pass.getText().toString();
                                 String correo = response.getString("correo");
@@ -152,6 +152,7 @@ public class LoginActivity extends AppCompatActivity {
                                 }
 
                                 Intent intent = new Intent(LoginActivity.this, PrincipalActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 //intent.putExtra("usuario",usuario);
                                 startActivity(intent);
                             }
