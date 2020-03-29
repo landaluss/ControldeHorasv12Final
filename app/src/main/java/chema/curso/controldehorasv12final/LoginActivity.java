@@ -85,6 +85,23 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = (Button) findViewById(R.id.btnLogin);
 
         prefs = getSharedPreferences("Preferences" , Context.MODE_PRIVATE);
+        String namePrefs;
+        String passPrefs;
+        String remenberPrefs;
+
+        namePrefs = prefs.getString("username",
+                "");
+        passPrefs = prefs.getString("pass",
+                "");
+        remenberPrefs = prefs.getString("remenber",
+                "");
+
+        if(remenberPrefs == "checked"){
+            switchRemenber.setChecked(true);
+            name.setText(namePrefs);
+            pass.setText(passPrefs);
+        }
+
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
@@ -142,6 +159,7 @@ public class LoginActivity extends AppCompatActivity {
                                     editor.putString("username" , username);
                                     editor.putString("name" , nombre);
                                     editor.putString("apellidos" , apellidos);
+                                    editor.putString("remenber" , "checked");
                                     editor.commit();
                                     editor.apply();
                                 } else {
@@ -149,6 +167,7 @@ public class LoginActivity extends AppCompatActivity {
                                     editor.putString("email" , mail);
                                     editor.putString("name" , nombre);
                                     editor.putString("apellidos" , apellidos);
+                                    editor.putString("remenber" , "nochecked");
                                     editor.commit();
                                     editor.apply();
                                 }

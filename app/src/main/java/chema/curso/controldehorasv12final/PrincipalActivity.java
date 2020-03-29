@@ -2,16 +2,20 @@ package chema.curso.controldehorasv12final;
 
 import android.content.ClipData;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.MenuCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -27,6 +31,7 @@ public class PrincipalActivity extends AppCompatActivity {
     private SharedPreferences prefs;
     private TextView nombre;
     private TextView correo;
+    private ClipData.Item cerrarSesion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +44,7 @@ public class PrincipalActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_registros, R.id.nav_informe , R.id.nav_cuenta , R.id.nav_ayuda , R.id.nav_sesion)
+                R.id.nav_home, R.id.nav_registros, R.id.nav_informe , R.id.nav_cuenta , R.id.nav_ayuda)
                 .setDrawerLayout(drawer)
                 .build();
 
@@ -53,14 +58,17 @@ public class PrincipalActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.main, menu);
-        //MenuCompat.setGroupDividerEnabled(menu, true);
+        getMenuInflater().inflate(R.menu.main, menu);
+        MenuCompat.setGroupDividerEnabled(menu, true);
+
+
         nombre = (TextView) findViewById(R.id.textViewNombre);
         correo = (TextView) findViewById(R.id.textViewCorreo);
 
         String name;
         String apellidos;
         String mail;
+        String remenber;
 
         SharedPreferences prefs = getSharedPreferences("Preferences", Context.MODE_PRIVATE);
 
@@ -71,12 +79,41 @@ public class PrincipalActivity extends AppCompatActivity {
         mail = prefs.getString("email",
                 "");
 
+        //Toast.makeText(PrincipalActivity.this, "Remenber= " + remenber, Toast.LENGTH_LONG).show();
+
         // eliminar preferences
         //prefs.edit().clear().apply();
 
         nombre.setText(name + " " + apellidos);
         correo.setText(mail);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        SharedPreferences prefs = getSharedPreferences("Preferences", Context.MODE_PRIVATE);
+
+        String remenber = prefs.getString("remenber",
+                "");
+
+        switch (item.getItemId()){
+
+            case R.id.action_settings:
+                if(remenber == "nochecked"){
+                    prefs.edit().clear().apply();
+                    Intent intent = new Intent(PrincipalActivity.this , LoginActivity.class);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(PrincipalActivity.this , LoginActivity.class);
+                    startActivity(intent);
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+        //Toast.makeText(PrincipalActivity.this, "Remenber= " + remenber, Toast.LENGTH_LONG).show();
     }
 
     @Override
