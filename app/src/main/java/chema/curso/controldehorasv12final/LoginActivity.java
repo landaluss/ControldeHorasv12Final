@@ -131,6 +131,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                 String nombre = response.getString("nombre");
                                 String apellidos = response.getString("apellidos");
+                                String username = name.getText().toString();
                                 String password = pass.getText().toString();
                                 String correo = response.getString("correo");
 
@@ -138,6 +139,7 @@ public class LoginActivity extends AppCompatActivity {
                                     SharedPreferences.Editor editor = prefs.edit();
                                     editor.putString("email" , mail);
                                     editor.putString("pass" , password);
+                                    editor.putString("username" , username);
                                     editor.putString("name" , nombre);
                                     editor.putString("apellidos" , apellidos);
                                     editor.commit();
@@ -197,6 +199,14 @@ public class LoginActivity extends AppCompatActivity {
         });
         fRequestQueue.add(jsonRequestLogin);
 
+    }
+
+    private String getUsernamePrefs(){
+        return prefs.getString("username" , "");
+    }
+
+    private String getpassPrefs(){
+        return prefs.getString("pass" , "");
     }
 
     /*private void saveOnPrefences(String name , String pass , String mail){
