@@ -51,28 +51,45 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/rlWeb"
+    android:id="@+id/rlWeb"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/rlPhone"
+    android:layout_centerHorizontal="true"
+    android:paddingTop="20dp">
+
+    <EditText
+        android:id="@+id/pass"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rlPhone"
+        android:background="@drawable/rounded"
+        android:drawableLeft="@drawable/ic_pass"
+        android:drawablePadding="10dp"
+        android:hint="Contraseña"
+        android:inputType="textPassword"
+        android:selectAllOnFocus="true"
+        android:padding="10dp"
+        android:shadowRadius="20"
+        android:textColor="#FFF"
+        android:textColorHint="#fff"
+        android:textSize="25dp" />
+
+</LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llwitchRemenber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rlWeb"
         android:layout_centerHorizontal="true"
         android:paddingTop="20dp">
 
-        <EditText
-            android:id="@+id/pass"
+        <Switch
+            android:id="@+id/switchRemenber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/rounded"
-            android:drawableLeft="@drawable/ic_pass"
-            android:drawablePadding="10dp"
-            android:hint="Contraseña"
-            android:inputType="textPassword"
-            android:selectAllOnFocus="true"
-            android:padding="10dp"
-            android:shadowRadius="20"
-            android:textColor="#FFF"
-            android:textColorHint="#fff"
-            android:textSize="25dp" />
+            android:text="Recordar datos "
+            android:textColor="#fff"/>
 
     </LinearLayout>
 
@@ -81,7 +98,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:id="@+id/rlbtn"
-        android:layout_below="@+id/rlWeb"
+        android:layout_below="@+id/llwitchRemenber"
         android:paddingTop="20dp">
 
         <Button

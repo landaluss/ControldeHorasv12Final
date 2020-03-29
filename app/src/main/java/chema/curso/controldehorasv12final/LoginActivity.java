@@ -4,12 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -56,11 +58,12 @@ import android.content.Context;
 
 public class LoginActivity extends AppCompatActivity {
 
-
-
+    private SharedPreferences prefs;
     private Button btnLogin;
     private EditText name;
     private EditText pass;
+    private String mail;
+    private Switch switchRemenber;
     private Context mContext;
     private RequestQueue fRequestQueue;
     private SinglentonVolley volley;
@@ -76,9 +79,12 @@ public class LoginActivity extends AppCompatActivity {
 
         getSupportActionBar().hide();
 
-        final EditText name = (EditText) findViewById(R.id.nombre);
-        final EditText pass = (EditText) findViewById(R.id.pass);
+        name = (EditText) findViewById(R.id.nombre);
+        pass = (EditText) findViewById(R.id.pass);
+        switchRemenber = (Switch) findViewById(R.id.switchRemenber);
         btnLogin = (Button) findViewById(R.id.btnLogin);
+
+        prefs = getSharedPreferences("Prefences" , Context.MODE_PRIVATE);
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
@@ -108,6 +114,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
     private void postRequestLogin(JSONObject data) {
         fRequestQueue = volley.getRequestQueue();
         String url = "https://informehoras.es/verificar-token.php";
@@ -121,7 +128,13 @@ public class LoginActivity extends AppCompatActivity {
 
                             if (Boolean.valueOf(response.getString("Autenticacion"))){
                                 Toast.makeText(mContext, "Hola" + " " +response.getString("nombre") + " " + response.getString("apellidos"), Toast.LENGTH_LONG).show();
-                                //String correo = response.getString("correo");
+
+                                String name = response.getString("name");
+                                String pass = response.getString("pass");
+                                String correo = response.getString("correo");
+
+                                saveOnPrefences(name , correo , pass);
+
                                 Intent intent = new Intent(LoginActivity.this, PrincipalActivity.class);
                                 //intent.putExtra("usuario",usuario);
                                 startActivity(intent);
@@ -166,8 +179,24 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
         fRequestQueue.add(jsonRequestLogin);
+
     }
 
-
+    private void saveOnPrefences(String name , String pass , String mail){
+        if(switchRemenber.isChecked()){
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("email" , mail);
+            editor.putString("pass" , pass);
+            editor.putString("name" , name);
+            editor.commit();
+            editor.apply();
+        } else {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("email" , mail);
+            editor.putString("name" , name);
+            editor.commit();
+            editor.apply();
+        }
+    }
 
 }
