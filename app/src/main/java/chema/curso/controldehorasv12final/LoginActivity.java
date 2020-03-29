@@ -129,11 +129,27 @@ public class LoginActivity extends AppCompatActivity {
                             if (Boolean.valueOf(response.getString("Autenticacion"))){
                                 Toast.makeText(mContext, "Hola" + " " +response.getString("nombre") + " " + response.getString("apellidos"), Toast.LENGTH_LONG).show();
 
-                                String name = response.getString("name");
-                                String pass = response.getString("pass");
+                                String nombre = name.getText().toString();
+                                String apellidos = response.getString("apellidos");
+                                String password = pass.getText().toString();
                                 String correo = response.getString("correo");
 
-                                saveOnPrefences(name , correo , pass);
+                                if(switchRemenber.isChecked()){
+                                    SharedPreferences.Editor editor = prefs.edit();
+                                    editor.putString("email" , mail);
+                                    editor.putString("pass" , password);
+                                    editor.putString("name" , nombre);
+                                    editor.putString("apellidos" , apellidos);
+                                    editor.commit();
+                                    editor.apply();
+                                } else {
+                                    SharedPreferences.Editor editor = prefs.edit();
+                                    editor.putString("email" , mail);
+                                    editor.putString("name" , nombre);
+                                    editor.putString("apellidos" , apellidos);
+                                    editor.commit();
+                                    editor.apply();
+                                }
 
                                 Intent intent = new Intent(LoginActivity.this, PrincipalActivity.class);
                                 //intent.putExtra("usuario",usuario);
@@ -182,7 +198,7 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void saveOnPrefences(String name , String pass , String mail){
+    /*private void saveOnPrefences(String name , String pass , String mail){
         if(switchRemenber.isChecked()){
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("email" , mail);
@@ -197,6 +213,6 @@ public class LoginActivity extends AppCompatActivity {
             editor.commit();
             editor.apply();
         }
-    }
+    }*/
 
 }
