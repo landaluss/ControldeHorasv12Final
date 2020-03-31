@@ -31,7 +31,7 @@ public class ComunicacionHttpSsl {
             public boolean verify(String hostname, SSLSession session) {
                 //return true; // verify always returns true, which could cause insecure network traffic due to trusting TLS/SSL server certificates for wrong hostnames
                 HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
-                return hv.verify("registrotrabajadores.000webhostapp.com", session);
+                return hv.verify("informehoras.es", session);
             }
         };
     }

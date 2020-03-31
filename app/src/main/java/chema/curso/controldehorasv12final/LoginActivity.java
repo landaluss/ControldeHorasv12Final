@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -63,6 +64,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText name;
     private EditText pass;
     private String mail;
+    private String imei;
     private Switch switchRemenber;
     private Context mContext;
     private RequestQueue fRequestQueue;
@@ -76,6 +78,7 @@ public class LoginActivity extends AppCompatActivity {
         mContext = this.getApplicationContext();
         volley = SinglentonVolley.getInstance(this);
         fRequestQueue = volley.getRequestQueue();
+        imei = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
 
         getSupportActionBar().hide();
 
@@ -114,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
                 JSONObject post = new JSONObject();
                 JSONObject usuario = new JSONObject();
                 try {
-                    usuario.put("imei", Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID));
+                    usuario.put("imei", imei);
                     usuario.put("nombre", name.getText().toString());
                     usuario.put("clave", pass.getText().toString());
                     post.put("usuario",usuario);
@@ -159,14 +162,18 @@ public class LoginActivity extends AppCompatActivity {
                                     editor.putString("username" , username);
                                     editor.putString("name" , nombre);
                                     editor.putString("apellidos" , apellidos);
+                                    editor.putString("imei" , imei);
                                     editor.putString("remenber" , "checked");
                                     editor.commit();
                                     editor.apply();
                                 } else {
                                     SharedPreferences.Editor editor = prefs.edit();
                                     editor.putString("email" , correo);
+                                    editor.putString("pass" , password);
+                                    editor.putString("username" , username);
                                     editor.putString("name" , nombre);
                                     editor.putString("apellidos" , apellidos);
+                                    editor.putString("imei" , imei);
                                     editor.putString("remenber" , "nochecked");
                                     editor.commit();
                                     editor.apply();
@@ -244,5 +251,4 @@ public class LoginActivity extends AppCompatActivity {
             editor.apply();
         }
     }*/
-
 }

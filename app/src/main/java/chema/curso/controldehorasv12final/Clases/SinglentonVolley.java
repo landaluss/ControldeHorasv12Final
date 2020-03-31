@@ -64,7 +64,7 @@ public class SinglentonVolley {
                     HttpsURLConnection httpsURLConnection = (HttpsURLConnection) super.createConnection(url);
                     try {
                         httpsURLConnection.setSSLSocketFactory(ComunicacionHttpSsl.getSSLSocketFactory(mCtx.getApplicationContext().getResources().openRawResource(R.raw.certificado)));
-                        //httpsURLConnection.setHostnameVerifier(ComunicacionHttpSsl.getHostnameVerifier());
+                        httpsURLConnection.setHostnameVerifier(ComunicacionHttpSsl.getHostnameVerifier());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
