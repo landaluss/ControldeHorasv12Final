@@ -32,8 +32,6 @@ public class SplashActivity extends AppCompatActivity {
         mail = prefs.getString("email",
                 "");
 
-        //Toast.makeText(SplashActivity.this, "Nombre=" + name + " / Email = " + mail, Toast.LENGTH_SHORT).show();
-
         if(!name.isEmpty() && !mail.isEmpty()){
             Intent intentMain = new Intent(SplashActivity.this,PrincipalActivity.class);
             startActivity(intentMain);

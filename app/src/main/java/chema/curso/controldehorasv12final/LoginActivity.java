@@ -145,17 +145,9 @@ public class LoginActivity extends AppCompatActivity {
                                 //editor.commit(); //sincrono
                                 editor.apply();     //asincrono
 
-                                if(remenberPrefs){ //Realizar pantalla de bienvenida
-                                    Toast.makeText(mContext, "io ricordo xD" , Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(LoginActivity.this, PrincipalActivity.class);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                }
-                                else {
-                                    Intent intent = new Intent(LoginActivity.this, PrincipalActivity.class);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                }
+                                Intent intent = new Intent(LoginActivity.this, PrincipalActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
