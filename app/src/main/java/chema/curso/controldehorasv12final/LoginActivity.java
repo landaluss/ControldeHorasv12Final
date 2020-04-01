@@ -163,17 +163,9 @@ public class LoginActivity extends AppCompatActivity {
                                 editor.putString("name" , nombre);
                                 editor.putString("apellidos" , apellidos);
                                 editor.putString("imei" , imei);
-
-
-                                if(switchRemenber.isChecked()) {//Guardar datos
-                                    editor.putBoolean("remember" , true);
-                                    //editor.commit(); //sincrono
-                                    editor.apply();     //asincrono
-                                }else{
-                                    editor.putBoolean("remember" , false);
-                                    //editor.commit(); //sincrono
-                                    editor.apply();     //asincrono
-                                }
+                                editor.putBoolean("remember" , switchRemenber.isChecked());
+                                //editor.commit(); //sincrono
+                                editor.apply();     //asincrono
 
                                 if(remenberPrefs){ //Realizar pantalla de bienvenida
                                     Toast.makeText(mContext, "io ricordo xD" , Toast.LENGTH_LONG).show();
