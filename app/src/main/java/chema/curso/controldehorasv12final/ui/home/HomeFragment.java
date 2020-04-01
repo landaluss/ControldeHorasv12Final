@@ -174,16 +174,15 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
+        locManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION,}, 1000);
-        } else {
-            mMap.setMyLocationEnabled(true);
-            mMap.getUiSettings().setMyLocationButtonEnabled(true);
-            locManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
-            locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER , 1000 , 10 , this);
-            locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER , 1000 , 10 , this);
+            return;
         }
+        mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        //locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
 
     }
 
@@ -218,20 +217,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
 
     @Override
     public void onLocationChanged(Location location) {
-        latitude = location.getLatitude();
-        longitud = location.getLongitude();
-
-        LatLng currentPosition = new LatLng(latitude , longitud);
-        CameraPosition camera = new CameraPosition.Builder()
-                .target(currentPosition)
-                .zoom(18)
-                .bearing(90)
-                .tilt(45)
-                .build();
-
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));
-
-        //Toast.makeText(getContext(), "Latitud" + latitude, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Changed!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
