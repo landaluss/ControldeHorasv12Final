@@ -69,6 +69,7 @@ public class LoginActivity extends AppCompatActivity {
     private Context mContext;
     private RequestQueue fRequestQueue;
     private SinglentonVolley volley;
+    private boolean remenberPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,16 +91,16 @@ public class LoginActivity extends AppCompatActivity {
         prefs = getSharedPreferences("Preferences" , Context.MODE_PRIVATE);
         String namePrefs;
         String passPrefs;
-        String remenberPrefs;
+
 
         namePrefs = prefs.getString("username",
                 "");
         passPrefs = prefs.getString("pass",
                 "");
-        remenberPrefs = prefs.getString("remenber",
-                "");
+        remenberPrefs = prefs.getBoolean("remember",
+                false);
 
-        if(remenberPrefs == "checked"){
+        if(remenberPrefs){
             switchRemenber.setChecked(true);
             name.setText(namePrefs);
             pass.setText(passPrefs);
@@ -155,34 +156,36 @@ public class LoginActivity extends AppCompatActivity {
                                 String password = pass.getText().toString();
                                 String correo = response.getString("correo");
 
-                                if(switchRemenber.isChecked()){
-                                    SharedPreferences.Editor editor = prefs.edit();
-                                    editor.putString("email" , correo);
-                                    editor.putString("pass" , password);
-                                    editor.putString("username" , username);
-                                    editor.putString("name" , nombre);
-                                    editor.putString("apellidos" , apellidos);
-                                    editor.putString("imei" , imei);
-                                    editor.putString("remenber" , "checked");
-                                    editor.commit();
-                                    editor.apply();
-                                } else {
-                                    SharedPreferences.Editor editor = prefs.edit();
-                                    editor.putString("email" , correo);
-                                    editor.putString("pass" , password);
-                                    editor.putString("username" , username);
-                                    editor.putString("name" , nombre);
-                                    editor.putString("apellidos" , apellidos);
-                                    editor.putString("imei" , imei);
-                                    editor.putString("remenber" , "nochecked");
-                                    editor.commit();
-                                    editor.apply();
+                                SharedPreferences.Editor editor = prefs.edit();
+                                editor.putString("email" , correo);
+                                editor.putString("pass" , password);
+                                editor.putString("username" , username);
+                                editor.putString("name" , nombre);
+                                editor.putString("apellidos" , apellidos);
+                                editor.putString("imei" , imei);
+
+
+                                if(switchRemenber.isChecked()) {//Guardar datos
+                                    editor.putBoolean("remember" , true);
+                                    //editor.commit(); //sincrono
+                                    editor.apply();     //asincrono
+                                }else{
+                                    editor.putBoolean("remember" , false);
+                                    //editor.commit(); //sincrono
+                                    editor.apply();     //asincrono
                                 }
 
-                                Intent intent = new Intent(LoginActivity.this, PrincipalActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                //intent.putExtra("usuario",usuario);
-                                startActivity(intent);
+                                if(remenberPrefs){ //Realizar pantalla de bienvenida
+                                    Toast.makeText(mContext, "io ricordo xD" , Toast.LENGTH_LONG).show();
+                                    Intent intent = new Intent(LoginActivity.this, PrincipalActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                }
+                                else {
+                                    Intent intent = new Intent(LoginActivity.this, PrincipalActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
