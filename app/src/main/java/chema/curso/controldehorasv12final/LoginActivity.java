@@ -14,7 +14,6 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,16 +21,17 @@ import java.io.UnsupportedEncodingException;
 
 
 import com.android.volley.AuthFailureError;
-        import com.android.volley.NetworkError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
-        import com.android.volley.ParseError;
-        import com.android.volley.Request;
-        import com.android.volley.RequestQueue;
-        import com.android.volley.Response;
-        import com.android.volley.ServerError;
-        import com.android.volley.TimeoutError;
-        import com.android.volley.VolleyError;
-        import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.ParseError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 
 import chema.curso.controldehorasv12final.Clases.SinglentonVolley;
 
@@ -43,11 +43,12 @@ public class LoginActivity extends AppCompatActivity {
     private EditText pass;
     private String mail;
     private String imei;
-    private Switch switchRemenber;
+    private Switch switchRemember;
     private Context mContext;
     private RequestQueue fRequestQueue;
     private SinglentonVolley volley;
-    private boolean remenberPrefs;
+    private boolean rememberPrefs;
+    private View textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +64,9 @@ public class LoginActivity extends AppCompatActivity {
 
         name = (EditText) findViewById(R.id.nombre);
         pass = (EditText) findViewById(R.id.pass);
-        switchRemenber = (Switch) findViewById(R.id.switchRemenber);
+        switchRemember = (Switch) findViewById(R.id.switchRemember);
         btnLogin = (Button) findViewById(R.id.btnLogin);
+        textView = (View) findViewById(R.id.textView);
 
         prefs = getSharedPreferences("Preferences" , Context.MODE_PRIVATE);
         String namePrefs;
@@ -75,11 +77,11 @@ public class LoginActivity extends AppCompatActivity {
                 "");
         passPrefs = prefs.getString("pass",
                 "");
-        remenberPrefs = prefs.getBoolean("remember",
+        rememberPrefs = prefs.getBoolean("remember",
                 false);
 
-        if(remenberPrefs){
-            switchRemenber.setChecked(true);
+        if(rememberPrefs){
+            switchRemember.setChecked(true);
             name.setText(namePrefs);
             pass.setText(passPrefs);
         }
@@ -112,6 +114,24 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+        textView.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                JSONObject post = new JSONObject();
+                JSONObject usuario = new JSONObject();
+                try {
+                    usuario.put("imei", imei);
+                    post.put("usuario",usuario);
+                    postRequestRecuperarClave(post);
+
+
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void postRequestLogin(JSONObject data) {
@@ -141,7 +161,7 @@ public class LoginActivity extends AppCompatActivity {
                                 editor.putString("name" , nombre);
                                 editor.putString("apellidos" , apellidos);
                                 editor.putString("imei" , imei);
-                                editor.putBoolean("remember" , switchRemenber.isChecked());
+                                editor.putBoolean("remember" , switchRemember.isChecked());
                                 //editor.commit(); //sincrono
                                 editor.apply();     //asincrono
 
@@ -192,6 +212,72 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    private void postRequestRecuperarClave(JSONObject data) {
+        fRequestQueue = volley.getRequestQueue();
+        String url = "https://informehoras.es/appMovil/recuperarClave.php";
+
+        JsonObjectRequest jsonRequestRecuperarClave=new JsonObjectRequest(Request.Method.POST, url, data,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            Toast.makeText(mContext, response.getString("msg"), Toast.LENGTH_LONG).show();
+
+                            if (Boolean.valueOf(response.getString("exito"))){
+                                Toast.makeText(mContext, response.getString("msg"), Toast.LENGTH_LONG).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                // Handle error
+                Log.v("RESPUESTAERROR", error.toString());
+
+                if (error instanceof TimeoutError) {
+                    //Toast.makeText(mContext,mContext.getString(R.string.error_network_timeout),Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, "Timeout error...", Toast.LENGTH_LONG).show();
+                }else if(error instanceof NoConnectionError){
+                    //Toast.makeText(mContext,mContext.getString(R.string.error_network_timeout),Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, "No connection...", Toast.LENGTH_LONG).show();
+
+                } else if (error instanceof AuthFailureError) {
+                    try {
+                        Toast.makeText(mContext, "Login incorrecto...", Toast.LENGTH_LONG).show();
+                        Log.v("RESPUESTAERRORATH", new String(error.networkResponse.data, "UTF-8"));
+                        onStart();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                    //TODO
+                } else if (error instanceof ServerError) {
+                    //TODO
+                    Toast.makeText(mContext, "ServerError...", Toast.LENGTH_LONG).show();
+                    Log.v("RESPUESTAERROR.ServerE", ".");
+                } else if (error instanceof NetworkError) {
+                    Toast.makeText(mContext, "NetworkError...", Toast.LENGTH_LONG).show();
+                    Log.v("RESPUESTAERROR.NetworkE", ".");
+                    //TODO
+                } else if (error instanceof ParseError) {
+                    //TODO
+                    Toast.makeText(mContext, "ParseError...", Toast.LENGTH_LONG).show();
+                    Log.v("RESPUESTAERROR", "ParseError");
+                }
+            }
+        });
+        jsonRequestRecuperarClave.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 5,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        fRequestQueue.add(jsonRequestRecuperarClave);
+
+    }
+
+
+
     private String getUsernamePrefs(){
         return prefs.getString("username" , "");
     }
@@ -199,6 +285,8 @@ public class LoginActivity extends AppCompatActivity {
     private String getpassPrefs(){
         return prefs.getString("pass" , "");
     }
+
+
 
     /*private void saveOnPrefences(String name , String pass , String mail){
         if(switchRemenber.isChecked()){

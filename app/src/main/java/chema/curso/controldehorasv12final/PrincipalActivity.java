@@ -94,13 +94,13 @@ public class PrincipalActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("Preferences", Context.MODE_PRIVATE);
 
-        String remenber = prefs.getString("remenber",
-                "");
+        boolean rememberPrefs = prefs.getBoolean("remember",
+                false);
 
         switch (item.getItemId()){
 
             case R.id.action_settings:
-                if(remenber == "nochecked"){
+                if(!rememberPrefs){
                     prefs.edit().clear().apply();
                     Intent intent = new Intent(PrincipalActivity.this , LoginActivity.class);
                     startActivity(intent);

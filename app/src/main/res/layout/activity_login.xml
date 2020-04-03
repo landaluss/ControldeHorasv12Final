@@ -85,7 +85,7 @@
         android:paddingTop="20dp">
 
         <Switch
-            android:id="@+id/switchRemenber"
+            android:id="@+id/switchRemember"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Recordar datos "
@@ -112,5 +112,11 @@
             android:textSize="20dp"/>
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Recuperar Correo" />
 
 </RelativeLayout>

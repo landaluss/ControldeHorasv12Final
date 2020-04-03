@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +39,13 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -45,6 +53,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import android.location.Location;
+import android.location.LocationManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,7 +76,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
     private MapView mapView;
 
     private LocationManager locManager;
-    private double latitude;
+    private double latitud;
     private double longitud;
 
     private Button entrada;
@@ -76,6 +86,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
     private RequestQueue fRequestQueue;
     private SinglentonVolley volley;
     private SharedPreferences prefs;
+    private LocationRequest mLocationRequest;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private Location mLastLocation;
+    private int ENTRADA  = 0;
+    private int SALIDA  = 1;
+
+
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -93,6 +111,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         volley = SinglentonVolley.getInstance(mContext);
         fRequestQueue = volley.getRequestQueue();
         prefs = this.getActivity().getSharedPreferences("Preferences", Context.MODE_PRIVATE);
+        mLocationRequest = new LocationRequest();
+
 
         mapView = (MapView) rootView.findViewById(R.id.map);
         if(mapView!= null){
@@ -108,27 +128,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         entrada.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                try {
-                    JSONObject post = new JSONObject();
-                    JSONObject usuario = new JSONObject();
-                    JSONObject nuevo_registro = new JSONObject();
-
-                    usuario.put("imei", prefs.getString("imei",""));
-                    usuario.put("nombre", prefs.getString("username",""));
-                    usuario.put("clave", prefs.getString("pass",""));
-                    post.put("usuario", usuario);
-
-                    nuevo_registro.put("latitud", "-3.333");
-                    nuevo_registro.put("longitud", "40.00");
-                    nuevo_registro.put("tipo", "he");
-                    post.put("nuevo_registro", nuevo_registro);
-
-                    postRequestActualizarRegistro(post);
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                startLocationUpdates();
                 entrada.setVisibility(View.INVISIBLE);
                 salida.setVisibility(View.VISIBLE);
                 Toast.makeText(getActivity(), "Me voy, sale el de salida", Toast.LENGTH_SHORT).show();
@@ -138,28 +138,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         salida.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                try {
-                    JSONObject post = new JSONObject();
-                    JSONObject usuario = new JSONObject();
-                    JSONObject nuevo_registro = new JSONObject();
-
-                    usuario.put("imei", prefs.getString("imei",""));
-                    usuario.put("nombre", prefs.getString("username",""));
-                    usuario.put("clave", prefs.getString("pass",""));
-                    post.put("usuario", usuario);
-
-                    nuevo_registro.put("latitud", "-3.333");
-                    nuevo_registro.put("longitud", "40.00");
-                    nuevo_registro.put("tipo", "hs");
-                    post.put("nuevo_registro", nuevo_registro);
-
-                    postRequestActualizarRegistro(post);
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
+                startLocationUpdates();
                 salida.setVisibility(View.INVISIBLE);
                 entrada.setVisibility(View.VISIBLE);
                 Toast.makeText(getActivity(), "Me voy, sale el de entrada", Toast.LENGTH_SHORT).show();
@@ -167,25 +146,63 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         });
 
         askforCheckGps();
+        startLocationUpdates();
 
-    }
+        }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
-        locManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+        //locManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION,}, 1000);
             return;
         }
         mMap.setMyLocationEnabled(true);
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
         //locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
+
 
     }
 
+    private void startLocationUpdates(){
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(2000);
+        mLocationRequest.setFastestInterval(1000);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(mLocationRequest);
+        LocationSettingsRequest locationSettingsRequest = builder.build();
+
+        SettingsClient settingsClient = LocationServices.getSettingsClient(getContext());
+        settingsClient.checkLocationSettings(locationSettingsRequest);
+
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
+
+        //check permission
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+
+            return;
+        }
+
+        mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest,mLocationCallback, Looper.myLooper());
+
+    }
+
+    private LocationCallback mLocationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            //super.onLocationResult(locationResult);
+            super.onLocationResult(locationResult);
+            onLocationChanged(locationResult.getLastLocation());
+        }
+    };
+
+    private void stoplocationUpdates() {
+        mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
+    }
 
     private void askforCheckGps(){
         try {
@@ -217,7 +234,22 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
 
     @Override
     public void onLocationChanged(Location location) {
-        Toast.makeText(getContext(), "Changed!", Toast.LENGTH_SHORT).show();
+        mLastLocation = location;
+        Toast.makeText(getContext(), mLastLocation.getLatitude() + ":" + mLastLocation.getLongitude() , Toast.LENGTH_SHORT).show();
+
+        LatLng currentPosition = new LatLng(mLastLocation.getLatitude() , mLastLocation.getLongitude());
+        CameraPosition camera = new CameraPosition.Builder()
+                .target(currentPosition)
+                .zoom(18)
+                .bearing(90)
+                .tilt(45)
+                .build();
+
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));
+        stoplocationUpdates();
+        realizarRegistro(ENTRADA);
+        //realizarRegistro(SALIDA);
+
     }
 
     @Override
@@ -233,6 +265,37 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    private void realizarRegistro(int entradaSalida){
+        String tipo = "";
+        if (entradaSalida == 0){
+            tipo = "he";
+        }
+        else if (entradaSalida == 1){
+            tipo = "hs";
+        }
+
+        try {
+            JSONObject post = new JSONObject();
+            JSONObject usuario = new JSONObject();
+            JSONObject nuevo_registro = new JSONObject();
+
+            usuario.put("imei", prefs.getString("imei",""));
+            usuario.put("nombre", prefs.getString("username",""));
+            usuario.put("clave", prefs.getString("pass",""));
+            post.put("usuario", usuario);
+
+            nuevo_registro.put("latitud", mLastLocation.getLatitude());
+            nuevo_registro.put("longitud", mLastLocation.getLongitude());
+            nuevo_registro.put("tipo", tipo);
+            post.put("nuevo_registro", nuevo_registro);
+
+            postRequestActualizarRegistro(post);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     private void postRequestActualizarRegistro(JSONObject data) {
