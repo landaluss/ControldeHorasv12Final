@@ -39,9 +39,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private SharedPreferences prefs;
     private Button btnLogin;
-    private EditText name;
-    private EditText pass;
-    private String mail;
+    private EditText EtNombre;
+    private EditText EtClave;
+    private String correo;
     private String imei;
     private Switch switchRemember;
     private Context mContext;
@@ -62,8 +62,8 @@ public class LoginActivity extends AppCompatActivity {
 
         getSupportActionBar().hide();
 
-        name = (EditText) findViewById(R.id.nombre);
-        pass = (EditText) findViewById(R.id.pass);
+        EtNombre = (EditText) findViewById(R.id.EtNombre);
+        EtClave = (EditText) findViewById(R.id.EtClave);
         switchRemember = (Switch) findViewById(R.id.switchRemember);
         btnLogin = (Button) findViewById(R.id.btnLogin);
         textView = (View) findViewById(R.id.textView);
@@ -82,8 +82,8 @@ public class LoginActivity extends AppCompatActivity {
 
         if(rememberPrefs){
             switchRemember.setChecked(true);
-            name.setText(namePrefs);
-            pass.setText(passPrefs);
+            EtNombre.setText(namePrefs);
+            EtClave.setText(passPrefs);
         }
 
 
@@ -99,8 +99,8 @@ public class LoginActivity extends AppCompatActivity {
                 JSONObject usuario = new JSONObject();
                 try {
                     usuario.put("imei", imei);
-                    usuario.put("nombre", name.getText().toString());
-                    usuario.put("clave", pass.getText().toString());
+                    usuario.put("nombre", EtNombre.getText().toString());
+                    usuario.put("clave", EtClave.getText().toString());
                     post.put("usuario",usuario);
                     postRequestLogin(post);
 
@@ -150,17 +150,19 @@ public class LoginActivity extends AppCompatActivity {
 
                                 String nombre = response.getString("nombre");
                                 String apellidos = response.getString("apellidos");
-                                String username = name.getText().toString();
-                                String password = pass.getText().toString();
+                                String usuario = EtNombre.getText().toString();
+                                String clave = EtClave.getText().toString();
                                 String correo = response.getString("correo");
+                                String registrosHoy = response.getString("registros");
 
                                 SharedPreferences.Editor editor = prefs.edit();
-                                editor.putString("email" , correo);
-                                editor.putString("pass" , password);
-                                editor.putString("username" , username);
-                                editor.putString("name" , nombre);
+                                editor.putString("correo" , correo);
+                                editor.putString("clave" , clave);
+                                editor.putString("usuario" , usuario);
+                                editor.putString("nombre" , nombre);
                                 editor.putString("apellidos" , apellidos);
                                 editor.putString("imei" , imei);
+                                editor.putString("registrosHoy", registrosHoy);
                                 editor.putBoolean("remember" , switchRemember.isChecked());
                                 //editor.commit(); //sincrono
                                 editor.apply();     //asincrono
@@ -286,7 +288,11 @@ public class LoginActivity extends AppCompatActivity {
         return prefs.getString("pass" , "");
     }
 
-
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        this.finishAffinity();
+    }
 
     /*private void saveOnPrefences(String name , String pass , String mail){
         if(switchRemenber.isChecked()){

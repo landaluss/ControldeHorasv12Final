@@ -33,7 +33,7 @@
         android:paddingTop="50dp">
 
         <EditText
-            android:id="@+id/nombre"
+            android:id="@+id/EtNombre"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded"
@@ -59,7 +59,7 @@
     android:paddingTop="20dp">
 
     <EditText
-        android:id="@+id/pass"
+        android:id="@+id/EtClave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded"

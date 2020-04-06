@@ -24,5 +24,9 @@
             android:id="@+id/nav_ayuda"
             android:icon="@drawable/ic_ayuda"
             android:title="@string/menu_ayuda" />
+        <item
+            android:id="@+id/nav_sesion"
+            android:icon="@drawable/ic_salir"
+            android:title="@string/menu_sesion" />
     </group>
 </menu>

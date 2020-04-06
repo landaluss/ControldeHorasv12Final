@@ -29,8 +29,8 @@ public class PrincipalActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private SharedPreferences prefs;
-    private TextView nombre;
-    private TextView correo;
+    private TextView TvNombre;
+    private TextView TvCorreo;
     private ClipData.Item cerrarSesion;
 
     @Override
@@ -62,21 +62,21 @@ public class PrincipalActivity extends AppCompatActivity {
         MenuCompat.setGroupDividerEnabled(menu, true);
 
 
-        nombre = (TextView) findViewById(R.id.textViewNombre);
-        correo = (TextView) findViewById(R.id.textViewCorreo);
+        TvNombre = (TextView) findViewById(R.id.textViewNombre);
+        TvCorreo = (TextView) findViewById(R.id.textViewCorreo);
 
-        String name;
+        String nombre;
         String apellidos;
-        String mail;
+        String correo;
         String remenber;
 
         SharedPreferences prefs = getSharedPreferences("Preferences", Context.MODE_PRIVATE);
 
-        name = prefs.getString("name",
+        nombre = prefs.getString("nombre",
                 "");
         apellidos = prefs.getString("apellidos",
                 "");
-        mail = prefs.getString("email",
+        correo = prefs.getString("correo",
                 "");
 
         //Toast.makeText(PrincipalActivity.this, "Remenber= " + remenber, Toast.LENGTH_LONG).show();
@@ -84,34 +84,15 @@ public class PrincipalActivity extends AppCompatActivity {
         // eliminar preferences
         //prefs.edit().clear().apply();
 
-        nombre.setText(name + " " + apellidos);
-        correo.setText(mail);
+        TvNombre.setText(nombre + " " + apellidos);
+        TvCorreo.setText(correo);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-        SharedPreferences prefs = getSharedPreferences("Preferences", Context.MODE_PRIVATE);
-
-        boolean rememberPrefs = prefs.getBoolean("remember",
-                false);
-
-        switch (item.getItemId()){
-
-            case R.id.action_settings:
-                if(!rememberPrefs){
-                    prefs.edit().clear().apply();
-                    Intent intent = new Intent(PrincipalActivity.this , LoginActivity.class);
-                    startActivity(intent);
-                } else {
-                    Intent intent = new Intent(PrincipalActivity.this , LoginActivity.class);
-                    startActivity(intent);
-                }
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        return super.onOptionsItemSelected(item);
 
         //Toast.makeText(PrincipalActivity.this, "Remenber= " + remenber, Toast.LENGTH_LONG).show();
     }
@@ -122,4 +103,10 @@ public class PrincipalActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        this.finishAffinity();
+    }
+
 }

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import chema.curso.controldehorasv12final.LoginActivity;
@@ -25,6 +26,16 @@ public class SesionFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_sesion, container, false);
         return rootView;
 
+
+    }
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        SharedPreferences prefs = this.getActivity().getSharedPreferences("Preferences", Context.MODE_PRIVATE);
+
+        prefs.edit().clear().apply();
+        Intent intent = new Intent(getContext() , LoginActivity.class);
+        startActivity(intent);
 
     }
 

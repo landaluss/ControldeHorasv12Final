@@ -15,8 +15,7 @@ import android.widget.Toast;
 public class SplashActivity extends AppCompatActivity {
 
     private SharedPreferences prefs;
-    private String name;
-    private String mail;
+    private boolean rememberPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,19 +24,18 @@ public class SplashActivity extends AppCompatActivity {
         SystemClock.sleep(3000);
 
         prefs = getSharedPreferences("Preferences", Context.MODE_PRIVATE);
-
-        name = prefs.getString("name",
-                "");
-
-        mail = prefs.getString("email",
-                "");
-
-        if(!name.isEmpty() && !mail.isEmpty()){
+        rememberPrefs = prefs.getBoolean("remember",
+                false);
+        if(rememberPrefs){
             Intent intentMain = new Intent(SplashActivity.this,PrincipalActivity.class);
             startActivity(intentMain);
         } else {
             Intent intentLogin = new Intent(SplashActivity.this,LoginActivity.class);
             startActivity(intentLogin);
         }
+    }
+    @Override
+    public void onBackPressed(){
+        finish();
     }
 }
