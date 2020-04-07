@@ -79,11 +79,6 @@ public class PrincipalActivity extends AppCompatActivity {
         correo = prefs.getString("correo",
                 "");
 
-        //Toast.makeText(PrincipalActivity.this, "Remenber= " + remenber, Toast.LENGTH_LONG).show();
-
-        // eliminar preferences
-        //prefs.edit().clear().apply();
-
         TvNombre.setText(nombre + " " + apellidos);
         TvCorreo.setText(correo);
         return true;
@@ -94,7 +89,6 @@ public class PrincipalActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
 
-        //Toast.makeText(PrincipalActivity.this, "Remenber= " + remenber, Toast.LENGTH_LONG).show();
     }
 
     @Override

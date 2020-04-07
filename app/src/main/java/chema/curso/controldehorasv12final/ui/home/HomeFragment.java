@@ -336,7 +336,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
             JSONObject nuevo_registro = new JSONObject();
 
             usuario.put("imei", prefs.getString("imei",""));
-            usuario.put("nombre", prefs.getString("usuario",""));
+            usuario.put("nombre_login", prefs.getString("nombre_login",""));
             usuario.put("clave", prefs.getString("clave",""));
             post.put("usuario", usuario);
 
@@ -365,8 +365,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
                             if (Boolean.valueOf(response.getString("Autenticacion")) && Boolean.valueOf(response.getString("actualizado")) ){
 
                                 SharedPreferences.Editor editor = prefs.edit();
-                                String registrosHoy = response.getString("registros");
-                                editor.putString("registrosHoy", registrosHoy);
+                                editor.putString("registrosHoy", response.getString("registros"));
+                                editor.putString("horariosHoy", response.getString("horarios"));
                                 //editor.commit(); //sincrono
                                 editor.apply();     //asincrono
 

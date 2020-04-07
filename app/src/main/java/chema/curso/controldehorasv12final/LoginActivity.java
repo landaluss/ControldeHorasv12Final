@@ -73,20 +73,6 @@ public class LoginActivity extends AppCompatActivity {
         String passPrefs;
 
 
-        namePrefs = prefs.getString("username",
-                "");
-        passPrefs = prefs.getString("pass",
-                "");
-        rememberPrefs = prefs.getBoolean("remember",
-                false);
-
-        if(rememberPrefs){
-            switchRemember.setChecked(true);
-            EtNombre.setText(namePrefs);
-            EtClave.setText(passPrefs);
-        }
-
-
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -99,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
                 JSONObject usuario = new JSONObject();
                 try {
                     usuario.put("imei", imei);
-                    usuario.put("nombre", EtNombre.getText().toString());
+                    usuario.put("nombre_login", EtNombre.getText().toString());
                     usuario.put("clave", EtClave.getText().toString());
                     post.put("usuario",usuario);
                     postRequestLogin(post);
@@ -148,21 +134,15 @@ public class LoginActivity extends AppCompatActivity {
                             if (Boolean.valueOf(response.getString("Autenticacion"))){
                                 Toast.makeText(mContext, "Hola" + " " +response.getString("nombre") + " " + response.getString("apellidos"), Toast.LENGTH_LONG).show();
 
-                                String nombre = response.getString("nombre");
-                                String apellidos = response.getString("apellidos");
-                                String usuario = EtNombre.getText().toString();
-                                String clave = EtClave.getText().toString();
-                                String correo = response.getString("correo");
-                                String registrosHoy = response.getString("registros");
-
                                 SharedPreferences.Editor editor = prefs.edit();
-                                editor.putString("correo" , correo);
-                                editor.putString("clave" , clave);
-                                editor.putString("usuario" , usuario);
-                                editor.putString("nombre" , nombre);
-                                editor.putString("apellidos" , apellidos);
+                                editor.putString("correo" , response.getString("correo"));
+                                editor.putString("clave" , EtClave.getText().toString());
+                                editor.putString("nombre_login" , EtNombre.getText().toString());
+                                editor.putString("nombre" , response.getString("nombre"));
+                                editor.putString("apellidos" , response.getString("apellidos"));
                                 editor.putString("imei" , imei);
-                                editor.putString("registrosHoy", registrosHoy);
+                                editor.putString("registrosHoy", response.getString("registros"));
+                                editor.putString("horariosHoy", response.getString("horarios"));
                                 editor.putBoolean("remember" , switchRemember.isChecked());
                                 //editor.commit(); //sincrono
                                 editor.apply();     //asincrono
