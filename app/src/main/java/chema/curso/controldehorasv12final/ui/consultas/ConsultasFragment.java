@@ -1,8 +1,8 @@
 package chema.curso.controldehorasv12final.ui.consultas;
 
 import android.Manifest;
+import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -10,9 +10,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.LayoutAnimationController;
+import android.view.animation.TranslateAnimation;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -28,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,8 +44,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import chema.curso.controldehorasv12final.Clases.SinglentonVolley;
-import chema.curso.controldehorasv12final.LoginActivity;
-import chema.curso.controldehorasv12final.PrincipalActivity;
 import chema.curso.controldehorasv12final.R;
 
 public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
@@ -52,11 +59,22 @@ public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
     private ArrayList <Marker> registrosGPS;
     private Marker MarkerRegistro;
 
+    private Calendar calendario = Calendar.getInstance();
+    private EditText FechaInicio;
+    private EditText FechaFin;
+    private int day,month,year;
+
+    private ImageButton showOpstionsFilter;
+    private ImageButton hideOpstionsFilter;
+    private LinearLayout llView;
+    private int shortAnimationDuration;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.fragment_consultas, container, false);
         return rootView;
+
     }
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -75,6 +93,82 @@ public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
             mapView.onResume();
             mapView.getMapAsync(this);
         }
+
+        day = calendario.get(Calendar.DAY_OF_MONTH);
+        year = calendario.get(Calendar.YEAR);
+        month = calendario.get(Calendar.MONTH);
+
+        //accion para mostrar las opciones de filtrado
+        showOpstionsFilter = (ImageButton) getView().findViewById(R.id.showOptionsFilter);
+        hideOpstionsFilter = (ImageButton) getView().findViewById(R.id.hideOptionsFilter);
+        llView = (LinearLayout) getView().findViewById(R.id.llfiltros);
+
+        //boton mostrar
+        showOpstionsFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                animar(true);
+                llView.setVisibility(View.VISIBLE);
+                showOpstionsFilter.setVisibility(View.INVISIBLE);
+                hideOpstionsFilter.setVisibility(View.VISIBLE);
+            }
+        });
+
+        hideOpstionsFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                animar(false);
+                llView.setVisibility(View.GONE);
+                showOpstionsFilter.setVisibility(View.VISIBLE);
+                hideOpstionsFilter.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        FechaInicio = (EditText) getView().findViewById(R.id.FechaInicio);
+        FechaFin = (EditText) getView().findViewById(R.id.FechaFin);
+
+        //mostrar calendario y colocar fecha FechaInicio
+        FechaInicio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DateDialog();
+            }
+
+            public void DateDialog(){
+                DatePickerDialog.OnDateSetListener listener=new DatePickerDialog.OnDateSetListener() {
+
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear,int dayOfMonth)
+                    {
+                        FechaInicio.setText(dayOfMonth + "/" + monthOfYear + "/" + year);
+                    }};
+                DatePickerDialog dpDialog=new DatePickerDialog(getActivity(), listener, year, month, day);
+                dpDialog.show();
+            }
+        });
+
+        //mostrar calendario y colocar fecha FechaFin
+        FechaFin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DateDialog();
+            }
+
+            public void DateDialog(){
+                DatePickerDialog.OnDateSetListener listener=new DatePickerDialog.OnDateSetListener() {
+
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear,int dayOfMonth)
+                    {
+                        FechaFin.setText(dayOfMonth + "/" + monthOfYear + "/" + year);
+                    }};
+                DatePickerDialog dpDialog=new DatePickerDialog(getActivity(), listener, year, month, day);
+                dpDialog.show();
+            }
+        });
+
+        //Toast.makeText(mContext, "Año" + ano, Toast.LENGTH_SHORT).show();
+
     }
 
 
@@ -100,6 +194,28 @@ public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
             e.printStackTrace();
         }
 
+    }
+
+    private void animar(boolean mostrar)
+    {
+        AnimationSet set = new AnimationSet(true);
+        Animation animation = null;
+        if (mostrar)
+        {
+            //desde la esquina inferior derecha a la superior izquierda
+            animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f);
+        }
+        else
+        {    //desde la esquina superior izquierda a la esquina inferior derecha
+            animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f);
+        }
+        //duración en milisegundos
+        animation.setDuration(500);
+        set.addAnimation(animation);
+        LayoutAnimationController controller = new LayoutAnimationController(set, 0.25f);
+
+        llView.setLayoutAnimation(controller);
+        llView.startAnimation(animation);
     }
 
     private void mostrarRegistro(JSONObject response) throws JSONException {
