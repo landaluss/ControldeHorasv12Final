@@ -100,8 +100,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
     private Location mLastLocation;
     private int ENTRADA  = 0;
     private int SALIDA  = 1;
-    private boolean entradaClick;
-    private boolean salidaClick;
+    //private boolean entradaClick;
+    //private boolean salidaClick;
     private ArrayList <Marker> posicionGPS;
     private ArrayList <Marker> registrosGPS;
     Marker puntoGpsInicio;
@@ -125,8 +125,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         fRequestQueue = volley.getRequestQueue();
         prefs = this.getActivity().getSharedPreferences("Preferences", Context.MODE_PRIVATE);
         mLocationRequest = new LocationRequest();
-        entradaClick = false;
-        salidaClick = false;
+        //entradaClick = false;
+        //salidaClick = false;
         posicionGPS = new ArrayList<Marker>();
         registrosGPS = new ArrayList<Marker>();
 
@@ -145,44 +145,25 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         entrada.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                entradaClick = true;
-                startLocationUpdates();
-                entrada.setVisibility(View.INVISIBLE);
-                salida.setVisibility(View.VISIBLE);
-                Toast.makeText(getActivity(), "Me voy, sale el de salida", Toast.LENGTH_SHORT).show();
+                //entradaClick = true;
+                pulsarBoton(entrada);
             }
         });
 
         salida.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                salidaClick = true;
-                startLocationUpdates();
-                salida.setVisibility(View.INVISIBLE);
-                entrada.setVisibility(View.VISIBLE);
-                Toast.makeText(getActivity(), "Me voy, sale el de entrada", Toast.LENGTH_SHORT).show();
+                //salidaClick = true;
+                pulsarBoton(salida);
             }
         });
-
-        askforCheckGps();
         startLocationUpdates();
-
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
-
-        //locManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
-
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION,}, 1000);
-            return;
-        }
-        mMap.setMyLocationEnabled(false);
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        //locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
 
         try {
             JSONObject jsonRegistros = new JSONObject();
@@ -219,11 +200,17 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         //check permission
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-
             return;
         }
 
-        mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest,mLocationCallback, Looper.myLooper());
+        if(askforCheckGps()){
+
+            mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest,mLocationCallback, Looper.myLooper());
+        }
+        else{
+            habilitarBoton(false);
+        }
+
 
     }
 
@@ -239,19 +226,20 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
     }
 
-    private void askforCheckGps(){
+    private boolean askforCheckGps(){
         try {
             int gpsSignal = Settings.Secure.getInt(getActivity().getContentResolver() , Settings.Secure.LOCATION_MODE);
             if(gpsSignal == 0){
-                showInfoAlert();
+                return showInfoAlert();
             }
-
         } catch (Settings.SettingNotFoundException e) {
             e.printStackTrace();
         }
+        return true;
     }
 
-    private void showInfoAlert(){
+    private boolean showInfoAlert(){
+        final boolean[] r = {false};
         new AlertDialog.Builder(getContext())
                 .setTitle("GPS Signal")
                 .setMessage("No tienes activado el GPS. ¿Quieres activarlo ahora?")
@@ -260,10 +248,17 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intentt = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivity(intentt);
+                        r[0] = true;
                     }
                 })
-                .setNegativeButton("Ahora no" , null)
+                .setNegativeButton("Ahora no" , new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        r[0] = false;
+                    }
+                })
                 .show();
+        return r[0];
 
     }
 
@@ -285,13 +280,11 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));
         stoplocationUpdates();
 
-        if (entradaClick) {
+        if (!entrada.isEnabled()) {
             realizarRegistro(ENTRADA);
-            entradaClick = false;
         }
-        else if (salidaClick) {
+        else if (!salida.isEnabled()) {
             realizarRegistro(SALIDA);
-            salidaClick = false;
         }
         else{
 
@@ -364,6 +357,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
                             //Toast.makeText(mContext, response.getString("Msg"), Toast.LENGTH_LONG).show();
                             if (Boolean.valueOf(response.getString("Autenticacion")) && Boolean.valueOf(response.getString("actualizado")) ){
 
+                                habilitarBoton(true);
+
                                 SharedPreferences.Editor editor = prefs.edit();
                                 editor.putString("registrosHoy", response.getString("registros"));
                                 editor.putString("horariosHoy", response.getString("horarios"));
@@ -383,7 +378,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
 
                 // Handle error
                 Log.v("RESPUESTAERROR", error.toString());
-
+                habilitarBoton(false);
                 if (error instanceof TimeoutError) {
                     //Toast.makeText(mContext,mContext.getString(R.string.error_network_timeout),Toast.LENGTH_LONG).show();
                     Toast.makeText(mContext, "Timeout error...", Toast.LENGTH_LONG).show();
@@ -518,6 +513,41 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         if(posicionGPS.size()>0){
             posicionGPS.clear();
             puntoGpsInicio.remove();
+        }
+    }
+
+    private void pulsarBoton(Button bt) {
+        bt.setEnabled(false);
+        bt.setTextColor(getActivity().getResources().getColor(R.color.common_google_signin_btn_text_dark_disabled));
+        startLocationUpdates();
+    }
+    private void habilitarBoton(boolean exito) {
+        if (exito) {
+            if (!entrada.isEnabled()) {
+                entrada.setTextColor(getActivity().getResources().getColor(R.color.colorBlack));
+                //entradaClick = false;
+                entrada.setVisibility(View.INVISIBLE);
+                salida.setVisibility(View.VISIBLE);
+                entrada.setEnabled(true);
+            } else if (!salida.isEnabled()) {
+                salida.setTextColor(getActivity().getResources().getColor(R.color.colorBlack));
+                //salidaClick = false;
+                salida.setVisibility(View.INVISIBLE);
+                entrada.setVisibility(View.VISIBLE);
+                salida.setEnabled(true);
+            }
+        }
+        else{
+            if (!entrada.isEnabled()) {
+                entrada.setTextColor(getActivity().getResources().getColor(R.color.colorBlack));
+                entrada.setEnabled(true);
+                //entradaClick = false;
+            }
+            else if (!salida.isEnabled()) {
+                salida.setTextColor(getActivity().getResources().getColor(R.color.colorBlack));
+                salida.setEnabled(true);
+                //salidaClick = false;
+            }
         }
     }
 }
