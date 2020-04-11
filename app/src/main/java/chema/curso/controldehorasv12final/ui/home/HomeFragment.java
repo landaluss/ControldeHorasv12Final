@@ -125,8 +125,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         fRequestQueue = volley.getRequestQueue();
         prefs = this.getActivity().getSharedPreferences("Preferences", Context.MODE_PRIVATE);
         mLocationRequest = new LocationRequest();
-        //entradaClick = false;
-        //salidaClick = false;
         posicionGPS = new ArrayList<Marker>();
         registrosGPS = new ArrayList<Marker>();
 
@@ -145,7 +143,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         entrada.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //entradaClick = true;
                 pulsarBoton(entrada);
             }
         });
@@ -153,7 +150,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         salida.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //salidaClick = true;
                 pulsarBoton(salida);
             }
         });
@@ -180,10 +176,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
 
     }
 
-    /*@Override
-    public void onMapload(){
-        //mMap.setLocationSource((LocationSource) this);
-    }*/
+
     private void startLocationUpdates(){
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setInterval(1000);
@@ -192,8 +185,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         builder.addLocationRequest(mLocationRequest);
         LocationSettingsRequest locationSettingsRequest = builder.build();
 
-        SettingsClient settingsClient = LocationServices.getSettingsClient(getContext());
-        settingsClient.checkLocationSettings(locationSettingsRequest);
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
 
@@ -267,7 +258,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         mLastLocation = location;
         latitud = mLastLocation.getLatitude();
         longitud = mLastLocation.getLongitude();
-        //Toast.makeText(getContext(), latitud + ":" + longitud , Toast.LENGTH_SHORT).show();
 
         LatLng currentPosition = new LatLng(latitud , longitud);
         CameraPosition camera = new CameraPosition.Builder()
@@ -354,7 +344,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            //Toast.makeText(mContext, response.getString("Msg"), Toast.LENGTH_LONG).show();
                             if (Boolean.valueOf(response.getString("Autenticacion")) && Boolean.valueOf(response.getString("actualizado")) ){
 
                                 habilitarBoton(true);
@@ -365,7 +354,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
                                 //editor.commit(); //sincrono
                                 editor.apply();     //asincrono
 
-                                //mostrarRegistro(response);
+
                                 mostrarUltimoRegistro(response);
                             }
                         } catch (JSONException e) {
@@ -525,13 +514,11 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         if (exito) {
             if (!entrada.isEnabled()) {
                 entrada.setTextColor(getActivity().getResources().getColor(R.color.colorBlack));
-                //entradaClick = false;
                 entrada.setVisibility(View.INVISIBLE);
                 salida.setVisibility(View.VISIBLE);
                 entrada.setEnabled(true);
             } else if (!salida.isEnabled()) {
                 salida.setTextColor(getActivity().getResources().getColor(R.color.colorBlack));
-                //salidaClick = false;
                 salida.setVisibility(View.INVISIBLE);
                 entrada.setVisibility(View.VISIBLE);
                 salida.setEnabled(true);
@@ -541,12 +528,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
             if (!entrada.isEnabled()) {
                 entrada.setTextColor(getActivity().getResources().getColor(R.color.colorBlack));
                 entrada.setEnabled(true);
-                //entradaClick = false;
             }
             else if (!salida.isEnabled()) {
                 salida.setTextColor(getActivity().getResources().getColor(R.color.colorBlack));
                 salida.setEnabled(true);
-                //salidaClick = false;
             }
         }
     }
