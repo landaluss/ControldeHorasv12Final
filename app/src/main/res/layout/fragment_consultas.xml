@@ -4,17 +4,116 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:padding="0dp">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <com.google.android.gms.maps.MapView
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.MapFragment"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".MapsActivity" >
-        </com.google.android.gms.maps.MapView>
-    </LinearLayout>
+            android:orientation="vertical">
+                <com.google.android.gms.maps.MapView
+                    xmlns:tools="http://schemas.android.com/tools"
+                    android:id="@+id/map"
+                    android:name="com.google.android.gms.maps.MapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:context=".MapsActivity" >
+                </com.google.android.gms.maps.MapView>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="bottom|center"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="0dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginVertical="0dp">
+                <LinearLayout
+                    android:id="@+id/llbtnfiltrar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="bottom|center"
+                    android:layout_alignParentBottom="true"
+                    android:layout_margin="0dp"
+                    android:layout_marginBottom="0dp"
+                    android:layout_marginVertical="0dp"
+                    android:padding="10dp"
+                    android:background="#FFFFFF">
+                        <ImageButton
+                            android:id="@+id/showOptionsFilter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_showfilters"
+                            android:background="#FFFFFF" />
+                        <ImageButton
+                            android:id="@+id/hideOptionsFilter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_hidefilters"
+                            android:background="#FFFFFF"
+                            android:visibility="invisible"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/llfiltros"
+                    android:layout_below="@+id/llbtnfiltrar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="bottom|center"
+                    android:layout_alignParentBottom="true"
+                    android:layout_margin="0dp"
+                    android:layout_marginBottom="0dp"
+                    android:layout_marginVertical="0dp"
+                    android:padding="10dp"
+                    android:background="#FFFFFF"
+                    android:visibility="gone">
+                        <EditText
+                            android:id="@+id/FechaInicio"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/rounded"
+                            android:hint="Fecha deInicio"
+                            android:drawableLeft="@drawable/ic_calendar"
+                            android:drawablePadding="10dp"
+                            android:selectAllOnFocus="true"
+                            android:padding="12dp"
+                            android:shadowRadius="20"
+                            android:textColor="#FFF"
+                            android:textColorHint="#fff"
+                            android:textSize="20dp"
+                            android:clickable="true"
+                            android:focusable="false"
+                            android:maxWidth="120dp"/>
+
+                        <EditText
+                            android:id="@+id/FechaFin"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/rounded"
+                            android:hint="Fecha Final"
+                            android:drawableLeft="@drawable/ic_calendar"
+                            android:drawablePadding="10dp"
+                            android:selectAllOnFocus="true"
+                            android:padding="12dp"
+                            android:shadowRadius="20"
+                            android:textColor="#FFF"
+                            android:textColorHint="#fff"
+                            android:textSize="20dp"
+                            android:layout_marginTop="10dp"
+                            android:clickable="true"
+                            android:focusable="false"
+                            android:maxWidth="120dp"/>
+
+                        <Button
+                            android:id="@+id/btnFiltrar"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/roundedbuttoncolor"
+                            android:textColor="#fff"
+                            android:padding="12dp"
+                            android:text="FILTRAR"
+                            android:textSize="20dp"
+                            android:layout_marginTop="10dp"/>
+                </LinearLayout>
+        </LinearLayout>
+
 </RelativeLayout>
