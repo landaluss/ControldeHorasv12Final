@@ -107,6 +107,9 @@ public class SplashActivity extends AppCompatActivity {
                 // Handle error
                 Log.v("RESPUESTAERROR", error.toString());
 
+                Intent intentLogin = new Intent(mContext,LoginActivity.class);
+                startActivity(intentLogin);
+
                 if (error instanceof TimeoutError) {
                     //Toast.makeText(mContext,mContext.getString(R.string.error_network_timeout),Toast.LENGTH_LONG).show();
                     Toast.makeText(mContext, "Timeout error...", Toast.LENGTH_LONG).show();
@@ -115,14 +118,7 @@ public class SplashActivity extends AppCompatActivity {
                     Toast.makeText(mContext, "No connection...", Toast.LENGTH_LONG).show();
 
                 } else if (error instanceof AuthFailureError) {
-                    try {
-                        Toast.makeText(mContext, "Login incorrecto...", Toast.LENGTH_LONG).show();
-                        Log.v("RESPUESTAERRORATH", new String(error.networkResponse.data, "UTF-8"));
-                        Intent intentLogin = new Intent(mContext,LoginActivity.class);
-                        startActivity(intentLogin);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
+                    Log.v("RESPUESTAERROR.AuthFail", ".");
                     //TODO
                 } else if (error instanceof ServerError) {
                     //TODO

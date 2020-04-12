@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -29,6 +30,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
@@ -39,6 +41,8 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.internal.maps.zzt;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -46,6 +50,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -58,6 +64,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import android.location.Location;
@@ -78,8 +86,11 @@ import chema.curso.controldehorasv12final.R;
 
 import static android.content.Context.LOCATION_SERVICE;
 
-public class HomeFragment extends Fragment implements OnMapReadyCallback , LocationListener {
+public class HomeFragment extends Fragment implements OnMapReadyCallback, LocationListener {
 
+    private static final int REQUEST_LOCATION = 1000;
+    private static final int REQUEST_CHECK_SETTINGS = 0x1;
+    private SettingsClient mSettingsClient;
     private View rootView;
     private GoogleMap mMap;
     private MapView mapView;
@@ -95,16 +106,16 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
     private RequestQueue fRequestQueue;
     private SinglentonVolley volley;
     private SharedPreferences prefs;
+    private LocationManager locationManager;
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private Location mLastLocation;
-    private int ENTRADA  = 0;
-    private int SALIDA  = 1;
-    //private boolean entradaClick;
-    //private boolean salidaClick;
-    private ArrayList <Marker> posicionGPS;
-    private ArrayList <Marker> registrosGPS;
-    Marker puntoGpsInicio;
+    private int ENTRADA = 0;
+    private int SALIDA = 1;
+    private JSONObject jsonRegistros;
+    private ArrayList<Marker> posicionGPS;
+    private ArrayList<Marker> registrosGPS;
+    private Marker puntoGpsInicio;
     private Marker MarkerUltimoRegistro;
 
 
@@ -130,7 +141,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
 
 
         mapView = (MapView) rootView.findViewById(R.id.map);
-        if(mapView!= null){
+        if (mapView != null) {
             mapView.onCreate(null);
             mapView.onResume();
             mapView.getMapAsync(this);
@@ -162,11 +173,11 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         mMap = googleMap;
 
         try {
-            JSONObject jsonRegistros = new JSONObject();
-            JSONArray registrosHoy = new JSONArray(prefs.getString("registrosHoy",""));
-            jsonRegistros.put("registros",registrosHoy);
-            mostrarUltimoRegistro(jsonRegistros);
-            if (MarkerUltimoRegistro.getTitle().equals("ENTRADA")){
+            jsonRegistros = new JSONObject();
+            JSONArray registrosHoy = new JSONArray(prefs.getString("registrosHoy", ""));
+            jsonRegistros.put("registros", registrosHoy);
+            mostrarUltimoRegistro(jsonRegistros, false);
+            if (MarkerUltimoRegistro.getTitle().equals("ENTRADA")) {
                 entrada.setVisibility(View.INVISIBLE);
                 salida.setVisibility(View.VISIBLE);
             }
@@ -177,32 +188,77 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
     }
 
 
-    private void startLocationUpdates(){
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(1000);
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-        builder.addLocationRequest(mLocationRequest);
-        LocationSettingsRequest locationSettingsRequest = builder.build();
+    private void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+            locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, this);
 
 
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            mLocationRequest.setInterval(5000);
+            mLocationRequest.setFastestInterval(2000);
+            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+            builder.addLocationRequest(mLocationRequest);
+            LocationSettingsRequest locationSettingsRequest = builder.build();
+            mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
+            mSettingsClient = LocationServices.getSettingsClient(getActivity());
+            mSettingsClient.checkLocationSettings(locationSettingsRequest)
+                    .addOnSuccessListener(getActivity(), new OnSuccessListener<LocationSettingsResponse>(){
+                        @Override
+                        public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                            Log.i("GPS-SI", "All location settings are satisfied.");
+                            mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                        }
+                    })
+                    .addOnFailureListener(getActivity(), new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            int statusCode = ((ApiException) e).getStatusCode();
+                            habilitarBoton(false);
+                            switch (statusCode) {
+                                case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                    Log.i("GPS-NO", "Location settings are not satisfied. Attempting to upgrade " +
+                                            "location settings ");
+                                    try {
+                                        // Show the dialog by calling startResolutionForResult(), and check the
+                                        // result in onActivityResult().
+                                        ResolvableApiException rae = (ResolvableApiException) e;
+                                        rae.startResolutionForResult(getActivity(), REQUEST_CHECK_SETTINGS);
+                                    } catch (IntentSender.SendIntentException sie) {
+                                        Log.i("GPS-NO", "PendingIntent unable to execute request.");
+                                    }
+                                    break;
+                                case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                    String errorMessage = "Location settings are inadequate, and cannot be " +
+                                            "fixed here. Fix in Settings.";
+                                    Log.e("GPS-NO", errorMessage);
+                                    Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
 
-        //check permission
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            return;
-        }
 
-        if(askforCheckGps()){
+            //askforCheckGps();
 
-            mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest,mLocationCallback, Looper.myLooper());
+
+
         }
         else{
             habilitarBoton(false);
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
         }
+    }
 
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        Log.e("Permissions", String.valueOf(grantResults[0]) +":"+String.valueOf(PackageManager.PERMISSION_GRANTED));
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+        {
+            startLocationUpdates();
+        }
     }
 
     private LocationCallback mLocationCallback = new LocationCallback() {
@@ -214,6 +270,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
     };
 
     private void stoplocationUpdates() {
+        locationManager.removeUpdates(this);
         mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
     }
 
@@ -239,6 +296,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intentt = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivity(intentt);
+                        Log.e("GPSsignal","si!");
                         r[0] = true;
                     }
                 })
@@ -246,6 +304,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         r[0] = false;
+
                     }
                 })
                 .show();
@@ -259,6 +318,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         latitud = mLastLocation.getLatitude();
         longitud = mLastLocation.getLongitude();
 
+        Toast.makeText(mContext, String.valueOf(location.getAccuracy()), Toast.LENGTH_LONG).show();
+
         LatLng currentPosition = new LatLng(latitud , longitud);
         CameraPosition camera = new CameraPosition.Builder()
                 .target(currentPosition)
@@ -270,23 +331,27 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));
         stoplocationUpdates();
 
+        if(posicionGPS.size()>0){
+            posicionGPS.clear();
+            puntoGpsInicio.remove();
+        }
+
+        puntoGpsInicio = mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(latitud, longitud))
+                .title("Posición actual")
+                .snippet("")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+        posicionGPS.add(puntoGpsInicio);
+
         if (!entrada.isEnabled()) {
             realizarRegistro(ENTRADA);
         }
         else if (!salida.isEnabled()) {
             realizarRegistro(SALIDA);
         }
-        else{
 
-            puntoGpsInicio = mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(latitud, longitud))
-                    .title("Posición actual")
-                    .snippet("")
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
-            posicionGPS.add(puntoGpsInicio);
-        }
+
     }
-
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -295,8 +360,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
 
     @Override
     public void onProviderEnabled(String provider) {
-        Toast.makeText(mContext, provider, Toast.LENGTH_LONG).show();
-        Log.v("onProviderEnabled", provider);
+        startLocationUpdates();
     }
 
     @Override
@@ -355,7 +419,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
                                 editor.apply();     //asincrono
 
 
-                                mostrarUltimoRegistro(response);
+                                mostrarUltimoRegistro(response,true);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -368,6 +432,11 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
                 // Handle error
                 Log.v("RESPUESTAERROR", error.toString());
                 habilitarBoton(false);
+                try {
+                    mostrarUltimoRegistro(jsonRegistros,false);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 if (error instanceof TimeoutError) {
                     //Toast.makeText(mContext,mContext.getString(R.string.error_network_timeout),Toast.LENGTH_LONG).show();
                     Toast.makeText(mContext, "Timeout error...", Toast.LENGTH_LONG).show();
@@ -396,10 +465,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
                 }
             }
         });
+        jsonRequestActualizarRegistro.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         fRequestQueue.add(jsonRequestActualizarRegistro);
     }
 
-    private void mostrarUltimoRegistro(JSONObject response) throws JSONException {
+    private void mostrarUltimoRegistro(JSONObject response, boolean visibilidad) throws JSONException {
         JSONArray r = response.getJSONArray("registros");
         String fecha = "";
         String hora = "";
@@ -444,14 +517,18 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback , Locat
                 .title(tipo)
                 .snippet(hora)
                 .icon(BitmapDescriptorFactory.defaultMarker(btTipo))
+                .visible(visibilidad)
         );
 
         registrosGPS.add(MarkerUltimoRegistro);
 
-        if(posicionGPS.size()>0){
-            posicionGPS.clear();
-            puntoGpsInicio.remove();
+        if (visibilidad) {
+            if (posicionGPS.size() > 0) {
+                posicionGPS.clear();
+                puntoGpsInicio.remove();
+            }
         }
+
     }
 
     private void mostrarRegistro(JSONObject response) throws JSONException {

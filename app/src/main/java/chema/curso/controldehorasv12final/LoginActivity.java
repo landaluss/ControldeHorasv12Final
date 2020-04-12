@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
     private RequestQueue fRequestQueue;
     private SinglentonVolley volley;
     private boolean rememberPrefs;
-    private View textView;
+    private View tvRecibirCorreo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,21 +66,25 @@ public class LoginActivity extends AppCompatActivity {
         EtClave = (EditText) findViewById(R.id.EtClave);
         switchRemember = (Switch) findViewById(R.id.switchRemember);
         btnLogin = (Button) findViewById(R.id.btnLogin);
-        textView = (View) findViewById(R.id.textView);
+        tvRecibirCorreo = (View) findViewById(R.id.tvRecibirCorreo);
 
         prefs = getSharedPreferences("Preferences" , Context.MODE_PRIVATE);
-        String namePrefs;
-        String passPrefs;
+        rememberPrefs = prefs.getBoolean("remember",
+                false);
 
+
+        if(rememberPrefs){
+            EtNombre.setText(prefs.getString("nombre_login",""));
+            EtClave.setText(prefs.getString("clave",""));
+            switchRemember.setChecked(true);
+        }
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
 
-                /*String correo = name.getText().toString();
-                String password = pass.getText().toString();
-                */
+                
                 JSONObject post = new JSONObject();
                 JSONObject usuario = new JSONObject();
                 try {
@@ -100,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-        textView.setOnClickListener(new View.OnClickListener() {
+        tvRecibirCorreo.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {

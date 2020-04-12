@@ -68,7 +68,6 @@ public class PrincipalActivity extends AppCompatActivity {
         String nombre;
         String apellidos;
         String correo;
-        String remenber;
 
         SharedPreferences prefs = getSharedPreferences("Preferences", Context.MODE_PRIVATE);
 
