@@ -48,13 +48,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.sql.Date;
+import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import chema.curso.controldehorasv12final.Clases.SinglentonVolley;
@@ -157,7 +158,8 @@ public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
 
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        FechaInicio.setText(dayOfMonth + "/" + monthOfYear + "/" + year);
+                        int mes = monthOfYear + 1;
+                        FechaInicio.setText(dayOfMonth + "/" + mes + "/" + year);
                     }
                 };
                 DatePickerDialog dpDialog = new DatePickerDialog(getActivity(), listener, year, month, day);
@@ -177,7 +179,8 @@ public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
 
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        FechaFin.setText(dayOfMonth + "/" + monthOfYear + "/" + year);
+                        int mes = monthOfYear + 1;
+                        FechaFin.setText(dayOfMonth + "/" + mes + "/" + year);
                     }
                 };
                 DatePickerDialog dpDialog = new DatePickerDialog(getActivity(), listener, year, month, day);
@@ -189,25 +192,46 @@ public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
 
             @Override
             public void onClick(View v) {
-                String[] fDesde = FechaInicio.getText().toString().split("/");
-                String[] fHasta = FechaFin.getText().toString().split("/");
+                String fInicio = FechaInicio.getText().toString();
+                String fFin = FechaFin.getText().toString();
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-                JSONObject post = new JSONObject();
-                JSONObject usuario = new JSONObject();
-                JSONObject consulta_registro = new JSONObject();
+
                 try {
-                    usuario.put("imei", prefs.getString("imei", ""));
-                    usuario.put("nombre_login", prefs.getString("nombre_login", ""));
-                    usuario.put("clave", prefs.getString("clave", ""));
-                    post.put("usuario", usuario);
 
-                    consulta_registro.put("desde", fDesde[2]+ "-"+ fDesde[1] +"-" + fDesde[0]);
-                    consulta_registro.put("hasta", fHasta[2]+ "-"+ fHasta[1] +"-" + fHasta[0]);
-                    post.put("consulta_registro", consulta_registro);
 
-                    postRequestConsultaRegistro(post);
+                        Date dtInicio = (Date) sdf.parse(fInicio);
+                        Date dtFin = sdf.parse(fFin);
 
-                } catch (JSONException e) {
+                    if (dtInicio.getTime() <= dtFin.getTime()) {
+
+                        hideOpstionsFilter.callOnClick();
+                        String[] fDesde = fInicio.split("/");
+                        String[] fHasta = fFin.split("/");
+
+                        JSONObject post = new JSONObject();
+                        JSONObject usuario = new JSONObject();
+                        JSONObject consulta_registro = new JSONObject();
+
+                        usuario.put("imei", prefs.getString("imei", ""));
+                        usuario.put("nombre_login", prefs.getString("nombre_login", ""));
+                        usuario.put("clave", prefs.getString("clave", ""));
+                        post.put("usuario", usuario);
+
+                        consulta_registro.put("desde", fDesde[2] + "-" + fDesde[1] + "-" + fDesde[0]);
+                        consulta_registro.put("hasta", fHasta[2] + "-" + fHasta[1] + "-" + fHasta[0]);
+                        post.put("consulta_registro", consulta_registro);
+
+                        postRequestConsultaRegistro(post);
+                    }
+                    else{
+                        //Error rango fechas
+                        Toast.makeText(mContext, "El rango de fechas no aporta ningún resultado.", Toast.LENGTH_LONG).show();
+
+
+                    }
+
+                } catch (JSONException | ParseException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
@@ -227,8 +251,8 @@ public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
 
         try {
             JSONObject jsonRegistros = new JSONObject();
-            JSONArray registrosHoy = new JSONArray(prefs.getString("registrosHoy", ""));
-            jsonRegistros.put("registros", registrosHoy);
+            //JSONArray registrosHoy = new JSONArray();
+            jsonRegistros.put("registros", prefs.getString("registrosHoy", ""));
             mostrarRegistro(jsonRegistros);
             moverCamara(registrosGPS.get(registrosGPS.size() - 1));
 
@@ -258,7 +282,6 @@ public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
 
     private void mostrarRegistro(JSONObject response) throws JSONException {
         //Log.v("Ultimo registro",response.getJSONArray("ultReg")[0].getString("fecha"));
-        JSONArray r = response.getJSONArray("registros");
         String fecha = "";
         String hora = "";
         String tipo = "";
@@ -266,41 +289,45 @@ public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
         String rLat = "";
         float btTipo = 0;
 
-        for (int i = 0; i < r.length(); i++) {
-            JSONObject datos = r.getJSONObject(i);
-            fecha = datos.getString("fecha");
-            hora = datos.getString("hora");
-            rLong = datos.getString("long");
-            rLat = datos.getString("lat");
+        if (response.getJSONArray("registros").length()>0){
+            JSONArray r = response.getJSONArray("registros");
+
+            for (int i = 0; i < r.length(); i++) {
+                JSONObject datos = r.getJSONObject(i);
+                fecha = datos.getString("fecha");
+                hora = datos.getString("hora");
+                rLong = datos.getString("long");
+                rLat = datos.getString("lat");
 
 
-            switch (datos.getString("tipo")) {
-                case "he":
-                    tipo = "ENTRADA";
-                    btTipo = BitmapDescriptorFactory.HUE_GREEN;
-                    break;
-                case "hs":
-                    tipo = "SALIDA";
-                    btTipo = BitmapDescriptorFactory.HUE_RED;
-                    break;
+                switch (datos.getString("tipo")) {
+                    case "he":
+                        tipo = "ENTRADA";
+                        btTipo = BitmapDescriptorFactory.HUE_GREEN;
+                        break;
+                    case "hs":
+                        tipo = "SALIDA";
+                        btTipo = BitmapDescriptorFactory.HUE_RED;
+                        break;
+                }
+
+                Log.v("Registros",
+                        "\n\tfecha: " + fecha +
+                                "\n\thora: " + hora +
+                                "\n\ttipo: " + tipo +
+                                "\n\tlongitud: " + String.valueOf(rLong) +
+                                "\n\tlatitud: " + String.valueOf(rLat));
+
+
+                MarkerRegistro = mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(Double.parseDouble(rLat), Double.parseDouble(rLong)))
+                        .title(tipo)
+                        .snippet(hora)
+                        .icon(BitmapDescriptorFactory.defaultMarker(btTipo))
+                );
+
+                registrosGPS.add(MarkerRegistro);
             }
-
-            Log.v("Registros",
-                    "\n\tfecha: " + fecha +
-                            "\n\thora: " + hora +
-                            "\n\ttipo: " + tipo +
-                            "\n\tlongitud: " + String.valueOf(rLong) +
-                            "\n\tlatitud: " + String.valueOf(rLat));
-
-
-            MarkerRegistro = mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(Double.parseDouble(rLat), Double.parseDouble(rLong)))
-                    .title(tipo)
-                    .snippet(hora)
-                    .icon(BitmapDescriptorFactory.defaultMarker(btTipo))
-            );
-
-            registrosGPS.add(MarkerRegistro);
         }
 
     }
@@ -326,8 +353,8 @@ public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            Toast.makeText(mContext, "LLLLLLLLLLLLL", Toast.LENGTH_LONG).show();
                             if (Boolean.valueOf(response.getString("Autenticacion"))) {
+                                limpiarMapa();
                                 mostrarRegistro(response);
                             }
                         } catch (JSONException e) {
@@ -370,6 +397,15 @@ public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
             }
         });
         fRequestQueue.add(jsonRequestConsultaRegistro);
+    }
+
+    private void limpiarMapa(){
+        if (registrosGPS.size() > 0) {
+            for (int i=0; i<registrosGPS.size();i++) {
+                registrosGPS.get(i).remove();
+            }
+            registrosGPS.clear();
+        }
     }
 
     /*private void mostrarRegistro(JSONObject response) throws JSONException {
