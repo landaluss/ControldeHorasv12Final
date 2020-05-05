@@ -126,14 +126,23 @@ public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
         showOpstionsFilter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                animar(true);
-                llView.setVisibility(View.VISIBLE);
-                showOpstionsFilter.setVisibility(View.INVISIBLE);
-                hideOpstionsFilter.setVisibility(View.VISIBLE);
+
+                if (llView.getVisibility() == View.GONE)
+                {
+                    animar(true);
+                    llView.setVisibility(View.VISIBLE);
+                    showOpstionsFilter.setImageResource(R.drawable.ic_hidefilters);
+                    //Toast.makeText(mContext, "escondido", Toast.LENGTH_SHORT).show();
+                } else {
+                    animar(false);
+                    llView.setVisibility(View.GONE);
+                    showOpstionsFilter.setImageResource(R.drawable.ic_showfilters);
+                    //Toast.makeText(mContext, "mostrado", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
-        hideOpstionsFilter.setOnClickListener(new View.OnClickListener() {
+        /*hideOpstionsFilter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 animar(false);
@@ -141,7 +150,7 @@ public class ConsultasFragment extends Fragment implements OnMapReadyCallback {
                 showOpstionsFilter.setVisibility(View.VISIBLE);
                 hideOpstionsFilter.setVisibility(View.INVISIBLE);
             }
-        });
+        });*/
 
         FechaInicio = (EditText) getView().findViewById(R.id.FechaInicio);
         FechaFin = (EditText) getView().findViewById(R.id.FechaFin);

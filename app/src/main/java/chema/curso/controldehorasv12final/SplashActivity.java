@@ -57,7 +57,7 @@ public class SplashActivity extends AppCompatActivity {
         rememberPrefs = prefs.getBoolean("remember",
                 false);
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
         progressBar.setProgress(0);
         final long intervalo = 15;
         timer = new Timer();
