@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -30,11 +31,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class SplashActivity extends AppCompatActivity {
 
     private SharedPreferences prefs;
     private boolean rememberPrefs;
+    private Timer timer;
+    private ProgressBar progressBar;
+    private int i = 0;
     private Context mContext;
     private RequestQueue fRequestQueue;
     private SinglentonVolley volley;
@@ -42,8 +48,7 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        SystemClock.sleep(3000);
+        setContentView(R.layout.activity_splash);
 
         mContext = this.getApplicationContext();
         volley = SinglentonVolley.getInstance(this);
@@ -52,25 +57,42 @@ public class SplashActivity extends AppCompatActivity {
         rememberPrefs = prefs.getBoolean("remember",
                 false);
 
-        if(rememberPrefs){
-            JSONObject post = new JSONObject();
-            JSONObject usuario = new JSONObject();
-            try {
-                usuario.put("imei", prefs.getString("imei",""));
-                usuario.put("nombre_login", prefs.getString("nombre_login",""));
-                usuario.put("clave", prefs.getString("clave",""));
-                post.put("usuario",usuario);
-                postRequestLogin(post);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setProgress(0);
+        final long intervalo = 15;
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (i < 100){
+                    progressBar.setProgress(i);
+                    i++;
+                }else{
+                    timer.cancel();
 
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                    if(rememberPrefs){
+                        JSONObject post = new JSONObject();
+                        JSONObject usuario = new JSONObject();
+                        try {
+                            usuario.put("imei", prefs.getString("imei",""));
+                            usuario.put("nombre_login", prefs.getString("nombre_login",""));
+                            usuario.put("clave", prefs.getString("clave",""));
+                            post.put("usuario",usuario);
+                            postRequestLogin(post);
+
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        Toast.makeText(mContext, "Autentificando...", Toast.LENGTH_LONG).show();
+                    } else {
+                        Intent intentLogin = new Intent(mContext,LoginActivity.class);
+                        startActivity(intentLogin);
+                    }
+                }
             }
-            Toast.makeText(mContext, "Autentificando...", Toast.LENGTH_LONG).show();
-        } else {
-            Intent intentLogin = new Intent(mContext,LoginActivity.class);
-            startActivity(intentLogin);
-        }
+        },0,intervalo);
+
     }
 
     private void postRequestLogin(JSONObject data) {
