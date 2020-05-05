@@ -1,57 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:padding="0dp">
-    <LinearLayout
+
+    <com.google.android.gms.maps.MapView
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
-        <com.google.android.gms.maps.MapView
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.MapFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context=".MapsActivity" >
-        </com.google.android.gms.maps.MapView>
-    </LinearLayout>
+        tools:context=".MapsActivity" >
+    </com.google.android.gms.maps.MapView>
+
+    <Button
+        android:id="@+id/entrada"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/roundedbutton"
+        android:padding="12dp"
+        android:text="Entrada trabajo"
+        android:textColor="#484848"
+        android:textSize="20dp"
+        map:layout_constraintBottom_toBottomOf="parent" />
+
+    <Button
+        android:id="@+id/salida"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/roundedbutton"
+        android:padding="12dp"
+        android:text="Salida trabajo"
+        android:textColor="#484848"
+        android:textSize="20dp"
+        android:visibility="invisible"
+        map:layout_constraintBottom_toBottomOf="@+id/map"
+        tools:ignore="MissingConstraints" />
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#B3FFFFFF"
         android:orientation="horizontal"
-        android:gravity="bottom|center"
-        android:layout_margin="0dp"
-        android:layout_marginBottom="0dp"
-        android:layout_marginVertical="0dp">
-        <Button
-            android:id="@+id/entrada"
-            android:layout_width="match_parent"
+        android:padding="10dp"
+        map:layout_constraintBottom_toTopOf="@+id/entrada"
+        map:layout_constraintTop_toTopOf="@+id/map"
+        map:layout_constraintVertical_bias="0.97"
+        tools:layout_editor_absoluteX="0dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/roundedbutton"
-            android:textColor="#484848"
-            android:padding="12dp"
-            android:text="Entrada trabajo"
-            android:textSize="20dp"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:gravity="bottom|center"
-        android:layout_margin="0dp"
-        android:layout_marginBottom="0dp"
-        android:layout_marginVertical="0dp">
-        <Button
-            android:id="@+id/salida"
-            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_job_enter"/>
+            <TextView
+                android:id="@+id/tvEntrada"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="(08:00)"
+                android:paddingLeft="10dp"
+                android:textSize="19dp"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tvEntradaGPS"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="07:58"
+                android:paddingLeft="10dp"
+                android:textSize="19dp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/roundedbutton"
-            android:textColor="#484848"
-            android:padding="12dp"
-            android:text="Salida trabajo"
-            android:textSize="20dp"
-            android:visibility="invisible"/>
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_job_exit"/>
+            <TextView
+                android:id="@+id/tvsalida"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="(15:00)"
+                android:paddingLeft="10dp"
+                android:textSize="19dp"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tvsalidaGPS"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="15:03"
+                android:paddingLeft="10dp"
+                android:textSize="19dp"/>
+        </LinearLayout>
     </LinearLayout>
-</RelativeLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
